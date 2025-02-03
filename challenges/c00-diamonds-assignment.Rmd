@@ -28,7 +28,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|------------------|-----------------------------|-------------------------|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -57,13 +57,15 @@ In this first stage, you will explore the `diamonds` dataset and document your o
 *Hint*: We learned how to do this in `e-vis00-basics`!
 
 ```{r q1-task}
-ggplot(diamonds) +
-  geom_point(      
+diamonds |>
+  ggplot(
     mapping = aes( 
       x = carat,   
       y = price    
     )
-  )
+  ) +
+  geom_point()
+
 ```
 
 **Observations**:
@@ -78,14 +80,13 @@ ggplot(diamonds) +
 
 ```{r q2-task}
 ## TASK: Plot `price`, `carat`, and `cut` below
-ggplot(diamonds) +
-  geom_point(      
-    mapping = aes( 
-      x = carat,   
-      y = price,    
-      color = as.factor(cut) 
-      )
-  )
+diamonds |>
+  ggplot(mapping = aes(
+    x = carat,
+    y = price,
+    color = as.factor(cut)
+  )) +
+  geom_point()
 ```
 
 **Observations**:

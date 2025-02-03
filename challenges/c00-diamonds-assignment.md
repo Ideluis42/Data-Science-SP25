@@ -98,13 +98,14 @@ document your observations.
 *Hint*: We learned how to do this in `e-vis00-basics`!
 
 ``` r
-ggplot(diamonds) +
-  geom_point(      
+diamonds |>
+  ggplot(
     mapping = aes( 
       x = carat,   
       y = price    
     )
-  )
+  ) +
+  geom_point()
 ```
 
 ![](c00-diamonds-assignment_files/figure-gfm/q1-task-1.png)<!-- -->
@@ -123,14 +124,13 @@ ggplot(diamonds) +
 
 ``` r
 ## TASK: Plot `price`, `carat`, and `cut` below
-ggplot(diamonds) +
-  geom_point(      
-    mapping = aes( 
-      x = carat,   
-      y = price,    
-      color = as.factor(cut) 
-      )
-  )
+diamonds |>
+  ggplot(mapping = aes(
+    x = carat,
+    y = price,
+    color = as.factor(cut)
+  )) +
+  geom_point()
 ```
 
 ![](c00-diamonds-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
