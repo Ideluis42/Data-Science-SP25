@@ -78,12 +78,20 @@ library(tidyverse)
 
     ## Warning: package 'tidyverse' was built under R version 4.3.3
 
+    ## Warning: package 'ggplot2' was built under R version 4.3.3
+
+    ## Warning: package 'tidyr' was built under R version 4.3.3
+
+    ## Warning: package 'purrr' was built under R version 4.3.3
+
+    ## Warning: package 'lubridate' was built under R version 4.3.3
+
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
     ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
     ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
-    ## ✔ purrr     1.0.2     
+    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ## ✔ purrr     1.0.4     
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
@@ -170,11 +178,11 @@ df_titanic %>% summarize(total = sum(n))
 
 df_titanic |>
   filter(Survived == "Yes") |>
-    ggplot(aes(x = Class, y = n, fill = Sex)) +
-    geom_col(position = "dodge") +
-    xlab("Class") +
-    ylab("Number of People") +
-    ggtitle("Class and Sex of Survivors of the Titanic Crash")
+  ggplot(aes(x = Class, y = n, fill = Sex)) +
+  geom_col(position = "dodge") +
+  xlab("Class") +
+  ylab("Number of People") +
+  ggtitle("Class and Sex of Survivors of the Titanic Crash")
 ```
 
 ![](c01-titanic-assignment_files/figure-gfm/q3-task-1.png)<!-- -->
@@ -234,14 +242,15 @@ df_prop
 ``` r
 df_prop |>
   filter(Survived == "Yes") |>
-    ggplot(aes(x = Class, y = Prop, fill = Sex)) +
-    geom_col(position = "dodge") +
-    xlab("Class") +
-    ylab("Proportion of People") +
-    ggtitle("Proportion of Survivors by Class and Sex")
+  ggplot(aes(x = Class, y = Prop, fill = Sex)) +
+  geom_col(position = "dodge", color = "Black") +
+  xlab("Class") +
+  ylab("Proportion of People") +
+  ggtitle("Proportion of Survivors by Class and Sex")
 ```
 
-    ## Warning: Removed 2 rows containing missing values (`geom_col()`).
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_col()`).
 
 ![](c01-titanic-assignment_files/figure-gfm/q4-task-1.png)<!-- -->
 
@@ -267,15 +276,16 @@ additional variables!
 ``` r
 df_prop |>
   filter(Survived == "Yes") |>
-    ggplot(aes(x = Class, y = Prop, fill = Sex)) +
-    geom_col(position = "dodge") +
-    facet_wrap("Age") + 
-    xlab("Class") +
-    ylab("Proportion of People") +
-    ggtitle("Proportion of Survivors by Class, Sex, and Age")
+  ggplot(aes(x = Class, y = Prop, fill = Sex)) +
+  geom_col(position = "dodge") +
+  facet_wrap("Age") + 
+  xlab("Class") +
+  ylab("Proportion of People") +
+  ggtitle("Proportion of Survivors by Class, Sex, and Age")
 ```
 
-    ## Warning: Removed 2 rows containing missing values (`geom_col()`).
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_col()`).
 
 ![](c01-titanic-assignment_files/figure-gfm/q5-task-1.png)<!-- -->
 
@@ -288,8 +298,8 @@ df_prop |>
 - 2nd class men were least likely to survive
 - If you saw something *fishy* in q4 above, use your new plot to explain
   the fishy-ness.
-  - The high survival rate for the children probably influenced the
-    proportions in q4
+  - The fishiness is because the bars are stacked, and without an
+    outline you can’t distinguish the stacks
 
 # Notes
 
