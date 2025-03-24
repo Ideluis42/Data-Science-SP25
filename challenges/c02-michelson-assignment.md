@@ -142,8 +142,8 @@ df_michelson %>% glimpse()
 ## TODO: Compute summaries
 df_q1 <- 
   df_michelson |>
-    group_by(Distinctness) |>
-      summarize(n = n(), MeanVelocity = mean(Velocity))
+  group_by(Distinctness) |>
+  summarize(n = n(), MeanVelocity = mean(Velocity))
 
 df_q1
 ```
@@ -194,7 +194,7 @@ in the dataset.
 ## TODO: Adjust the data, assign to df_q2
 df_q2 <- 
   df_michelson |>
-    mutate(VelocityVacuum = Velocity + 92)
+  mutate(VelocityVacuum = Velocity + 92)
 
 df_q2
 ```
@@ -352,8 +352,6 @@ Similarities
 
 Differences
 
-- The simulated values are smaller than the real values
-
 - There seems to be less of a range in simulated values than there is in
   real values
 
@@ -413,11 +411,11 @@ df_q5 |>
 ``` r
 df_q5 |>
   ggplot(aes(x = Distinctness, y = VelocityVacuum)) +
-    geom_boxplot(fill = "lightblue", color = "black") +
-    labs(title = "VelocityVacuum vs Distinctness",
-         x = "Distinctness",
-         y = "Velocity in Vacuum") +
-    theme_minimal()
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "VelocityVacuum vs Distinctness",
+       x = "Distinctness",
+       y = "Velocity in Vacuum") +
+  theme_minimal()
 ```
 
 ![](c02-michelson-assignment_files/figure-gfm/q5%20vis%202-1.png)<!-- -->
@@ -429,19 +427,18 @@ df_q5 |>
 - Distinctness 1 has a slightly narrower spread compared to 2 and 3
 - Distinctness 3 has a slightly wider spread, suggesting a bit more
   variability
-- Outliers are visible in all three categories
 - Overlap across distinctness level suggests that distinctness alone
   doesn’t fully explain variations in measurements
 
 ``` r
 df_q5 |>
   ggplot(aes(x = Date, y = VelocityVacuum)) +
-    geom_line(color = "blue") +
-    geom_point(color = "red", alpha = 0.6) +
-    labs(title = "VelocityVacuum over Time",
-         x = "Date",
-         y = "Velocity in Vacuum") +
-    theme_minimal()
+  geom_line(color = "blue") +
+  geom_point(color = "red", alpha = 0.6) +
+  labs(title = "VelocityVacuum over Time",
+       x = "Date",
+       y = "Velocity in Vacuum") +
+  theme_minimal()
 ```
 
 ![](c02-michelson-assignment_files/figure-gfm/q5%20vis%203-1.png)<!-- -->
