@@ -72,10 +72,10 @@ Note that these data are not tidy! The data in this form are convenient for repo
 ## TASK: Tidy `df_stang`
 df_stang_long <-
   df_stang |>
-    pivot_longer(cols = starts_with("E_") | starts_with("nu_"),
-                 names_to = c(".value", "angle"),
-                 names_sep = "_") |>
-    mutate(angle = as.integer(angle)) |>
+  pivot_longer(cols = starts_with("E_") | starts_with("nu_"),
+               names_to = c(".value", "angle"),
+               names_sep = "_") |>
+  mutate(angle = as.integer(angle)) |>
   filter(E > 0, nu > 0)
       
 
@@ -115,6 +115,7 @@ print("Very good!")
 
 ```{r q2-task}
 head(df_stang_long)
+df_stang_long |> distinct(alloy)
 glimpse(df_stang_long)
 summary(df_stang_long)
 ```
@@ -141,21 +142,16 @@ summary(df_stang_long)
 ## TASK: Investigate your question from q1 here
 df_stang_long |>
   ggplot(aes(x = angle, y = E, color = factor(thick))) +
-  geom_point(size = 3)
+  geom_point(size = 3) +
+  facet_wrap("factor(thick)")
   
 
 ```
 
 **Observations**:
 
--   For most thicknesses, E decreases at 45-deg compared to 0 and 90 degrees
-
--   Thinner sheets show more change in elasticity with angle
-
--   Thicker sheets have more stable E values
-
--   At 0 and 90 degrees, E appears higher across all thicknesses
-
+-   The 0.022 and 0.64 thickness material has a stable elasticity value across 45 and 90 deg angles
+-   The 0.032 thickness material has its highest elasticity value at 45 degrees
 -   The 0.081 thickness material has the lowest elasticity values across all angles
 
 ### **q4** Consider the following statement:

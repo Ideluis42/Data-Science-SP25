@@ -77,12 +77,20 @@ library(tidyverse)
 
     ## Warning: package 'tidyverse' was built under R version 4.3.3
 
+    ## Warning: package 'ggplot2' was built under R version 4.3.3
+
+    ## Warning: package 'tidyr' was built under R version 4.3.3
+
+    ## Warning: package 'purrr' was built under R version 4.3.3
+
+    ## Warning: package 'lubridate' was built under R version 4.3.3
+
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
     ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
     ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ ggplot2   3.4.4     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
-    ## ✔ purrr     1.0.2     
+    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ## ✔ purrr     1.0.4     
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
@@ -154,10 +162,10 @@ value for `names_to`.
 ## TASK: Tidy `df_stang`
 df_stang_long <-
   df_stang |>
-    pivot_longer(cols = starts_with("E_") | starts_with("nu_"),
-                 names_to = c(".value", "angle"),
-                 names_sep = "_") |>
-    mutate(angle = as.integer(angle)) |>
+  pivot_longer(cols = starts_with("E_") | starts_with("nu_"),
+               names_to = c(".value", "angle"),
+               names_sep = "_") |>
+  mutate(angle = as.integer(angle)) |>
   filter(E > 0, nu > 0)
       
 
@@ -241,6 +249,15 @@ head(df_stang_long)
     ## 6 0.022 al_24st    90 10700 0.323
 
 ``` r
+df_stang_long |> distinct(alloy)
+```
+
+    ## # A tibble: 1 × 1
+    ##   alloy  
+    ##   <chr>  
+    ## 1 al_24st
+
+``` r
 glimpse(df_stang_long)
 ```
 
@@ -294,22 +311,18 @@ summary(df_stang_long)
 ## TASK: Investigate your question from q1 here
 df_stang_long |>
   ggplot(aes(x = angle, y = E, color = factor(thick))) +
-  geom_point(size = 3)
+  geom_point(size = 3) +
+  facet_wrap("factor(thick)")
 ```
 
 ![](c03-stang-assignment_files/figure-gfm/q3-task-1.png)<!-- -->
 
 **Observations**:
 
-- For most thicknesses, E decreases at 45-deg compared to 0 and 90
+- The 0.022 and 0.64 thickness material has a stable elasticity value
+  across 45 and 90 deg angles
+- The 0.032 thickness material has its highest elasticity value at 45
   degrees
-
-- Thinner sheets show more change in elasticity with angle
-
-- Thicker sheets have more stable E values
-
-- At 0 and 90 degrees, E appears higher across all thicknesses
-
 - The 0.081 thickness material has the lowest elasticity values across
   all angles
 
