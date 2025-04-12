@@ -1,6 +1,6 @@
 ---
 title: "The Islands, Part 2: Study"
-author: "(Your name here)"
+author: "Isabel de Luis, Sam Mendelson, Chris Nie, Jacob Prisament, Zhi Hong"
 date: 202X-XX-XX
 output:
   github_document:
@@ -9,6 +9,12 @@ prerequisites:
   - c10-islands-pt1
 ---
 
+# Notes for Sam
+
+-   Please fill in the "data scraping" section
+-   Please add in your cleaning/pivot code!
+-   Please do analysis section (q4)
+
 *Purpose*: This is part 2 of 2. In part 1 you *planed* your statistical project, particularly your data collection. In this part you will give updates on your plan, and report your findings.
 
 This challenge is deliberately shorter so you have time to collect and analyze your data.
@@ -16,17 +22,20 @@ This challenge is deliberately shorter so you have time to collect and analyze y
 *Important note*: While we expect that you did your data collection with your team, you need to complete your own individual report for c10.
 
 <!-- include-rubric -->
+
 # Grading Rubric
+
 <!-- -------------------------------------------------- -->
 
 Unlike exercises, **challenges will be graded**. The following rubrics define how you will be graded, both on an individual and team basis.
 
 ## Individual
+
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----------|----------------|--------------|
-| Effort | Some task __q__'s left unattempted | All task __q__'s attempted |
+|------------------------|------------------------|------------------------|
+| Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
 | Assessed | Observations include claims not supported by the data, or reflect a level of certainty not warranted by the data | Observations are appropriately qualified by the quality & relevance of the data and (in)conclusiveness of the support |
@@ -34,69 +43,248 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 | Code Styled | Violations of the [style guide](https://style.tidyverse.org/) hinder readability | Code sufficiently close to the [style guide](https://style.tidyverse.org/) |
 
 ## Submission
+
 <!-- ------------------------- -->
 
 Make sure to commit both the challenge report (`report.md` file) and supporting files (`report_files/` folder) when you are done! Then submit a link to Canvas. **Your Challenge submission is not complete without all files uploaded to GitHub.**
 
-
 # Setup
+
 <!-- ----------------------------------------------------------------------- -->
 
 ```{r setup}
 library(tidyverse)
 library(rsample)
-
-# TODO: Include any other packages you need
 ```
 
-### __q1__ Planning a study (TEAMWORK)
+### **q1** Planning a study (TEAMWORK)
 
 While you provided this plan in c08 (Part 1), please include your plan here. In particular, describe how you updated your plan in response to feedback.
 
 #### Population
 
-- (What population are you going to study?)
-  - All of the Islanders? Only the residents of Helvig? Participants meeting certain criteria (in which case, you need to list *covariates*)?
+For our study, we are going to study the islanders from every city in Ironbard. The six cities in Ironbard are:
+
+-   Hofn
+-   Vardo
+-   Helvig
+-   Bjurholm
+-   Blondous
+-   Helluland
 
 #### Quantity of interest
 
-- (Write your quantity of interest here)
+We are interested in seeing how Net worth influences household size and the number of children an islander has.
 
 #### Covariates
 
-- (Write any relevant covariates here)
-- (There's probably more than one!)
+The covariates of our study are:
+
+-   Net Worth
+-   Socioeconomic factors
+-   Occupation
+-   Town
 
 #### Observation or experiment?
 
 The Islands allows you to ask islanders to complete tasks. If you just take measurements on your participants, then it's an *observational study*. But if you also introduce something that's meant to change the outcome of a measurement (e.g., drinking coffee before taking a test), that's called an *experimental study*. You need to decide whether your study is observational or experimental.
 
-- (Observation or experiment?)
+Since this study aims to investigate the relationship between an islander's net worth, the number of children they have, and the household size, it is an observational study since we can analyze the existing data without manipulating any variables.
 
 #### Question / Hypothesis
 
-- (Write your question / hypothesis here)
-  - This could be an observational question, like "How are X and Y related in the population?"
-  - This could be an experimental question, like "What effect does X have on Y in the population?"
+Our question is how does an Ironbard's islander's net worth influence the number of children they have and the size of their household.
 
 #### Sampling plan
 
-- (What steps will you take to collect the data?)
-  - Be specific. For instance, if you're going to collect a random sample, how will you enumerate all of the things to be sampled?
-  - Write a protocol. Document step-by-step instructions that your team will follow. That way, you can feasibly split up data collection among the whole team, while making sure each team member doesn't make ad hoc decisions that introduce bias into your results.
-- (How will you ensure the data is representative of your chosen population?)
-- (For experiments only: How will you ensure any effects you observe are due to the treatment, and not due to other factors?)
-- (How will you choose your sample size?)
-  - This should be a mix of how confident you want to be in your results, and what is actually *feasible* for your research team.
+We will be collecting data from a random sample of 20 households from each city in Ironbard. Since we are taking a random sample, the data will be representative of the general population, because random sampling ensures that each element in the population has an equal probability of being chosen and reduces the biases involved.
 
-### __q2__ EDA
+We chose to take samples from 20 households from each city (120 households total) due to the practical constraints of working within a simulated environment. A sample size of 20 is manageable for detailed analysis and will allow for good observation while maintaining feasiblity within the scop of the study.
 
-Conduct an EDA on your data. Add as many code chunks as you need. Ensure your EDA gives enough context of the data for us to understand what comes next in this report.
+To increase efficiency, we will use a Python script that interacts with the islands and quickly collects data.
 
-### __q3__ Key Analyses
+##### Data Scraping (Sam please fill out)
+
+### **q2** EDA
+
+After scraping the data, we had six different CSV files with the data for each city. In order to use this data though, we needed to combine and pivot the data.
+
+```{r load data}
+# load from csvs
+bjurholm_df <-read_csv("data/islands/bjurholm_out.csv")
+blondous_df <-read_csv("data/islands/blonduos_out.csv")
+helluland_df <- read_csv("data/islands/helluland_out.csv")
+helvig_df <- read_csv("data/islands/helvig_out.csv")
+hofn_df <- read_csv("data/islands/hofn_out.csv")
+vardo_df <- read_csv("data/islands/vardo_out.csv")
+```
+
+```{r clean data}
+# Sam please fill this in
+
+# Replace the net worth value for anyone with 'NA' to 0
+df <-
+  df |> 
+  mutate(NetWorth = replace_na(NetWorth, 0))
+
+# People who are 1 have NA in their age value -> bandaid fix
+df <-
+  df |> 
+  mutate(Age = replace_na(Age, 1))
+```
+
+## Sam please add pivoting explanation
+
+## this chunk can be deleted once cleaning/pivot data section is updated
+
+```{r load data}
+load("data/final.RData")
+```
+
+Now that our data is cleaned, we want to take a look at it.
+
+```{r summarize}
+glimpse(df)
+
+head(df)
+```
+
+From a glimpse, we see that our dataframe columns are:
+
+-   Town
+-   HouseID
+-   HouseSize
+-   Name
+-   Net Worth
+-   Occupation
+-   Age
+-   NumChildren
+-   NumHouseOccupants
+
+```{r summary statistics}
+df |>
+  summarise(mean_networth = mean(NetWorth),
+            mean_age = mean(Age),
+            mean_numChildren = mean(NumChildren),
+            mean_numHouseOccupants = mean(NumHouseOccupants))
+
+```
+
+If we look at the mean of each variable of interest, we see that overall, islanders have around 1-2 children, there are 3-4 people in their household, and have a net worth of around \$2449.245.
+
+```{r}
+df |>
+  ggplot(aes(x = NumChildren, color = Town)) +
+  geom_density()
+```
+
+Looking at each town individually, in general for every town, the densities are right-skewed, suggesting that people have a lower number of children, with a few larger families in each town. Additionally, the curves overlap quite a bit, suggesting that the distribution for each town is somewhat similar. One thing to note about this plot is that it's looking at all the data we collected, which includes children. We can get a more accurate distribution of the number of children an islander has by filtering out every under the age of 18.
+
+```{r}
+df |>
+  filter(Age >= 18) |>
+  ggplot(aes(x = NumChildren, color = Town)) +
+  geom_density()
+```
+
+When we take out the children from our density plot, we get a very different shape. Some towns appear to have multiple peaks, suggesting a multimodal distribution, which could indicate subgroups of families within a town. While many towns do cluster around 1-2 children, there is meaningful variation in distribution shape. However, the density plot may be showing multiple smaller peaks that may not be meaningful due to the smaller sampling size.
+
+```{r}
+df |>
+  ggplot(aes(x = NetWorth, color = Town)) +
+  geom_density()
+
+df |>
+  filter(Age >= 18) |>
+  ggplot(aes(x = NetWorth, color = Town)) +
+  geom_density()
+
+```
+
+Continuing with our densities analysis, we can look at the spread of the distribution of wealth on each island. All curves show a strong right skew, meaning most values cluster toward the lower end of net worth. Some towns have a noticeably broader spread in net worth (Blonduos, Vardo, Helvig), potentially indicating a more diverse population in terms of financial status.
+
+If we look only at the adults in the dataset, we see a very similar plot.
+```{r}
+df |>
+  ggplot(aes(x = NumHouseOccupants, color = Town)) +
+  geom_density()
+```
+The next distribution we're going to look at is the number of household occupants. Several towns, like helluland and bjurholm appear to have more than one distinct peak. Helvig seems to have larger household size on average, while the other towns seem to have an average household size of 2-4.
+
+```{r}
+df |>
+  ggplot(aes(x = Age, color = Town)) +
+  geom_density()
+```
+The final distribution we're going to look at is age. The age range in the data is from 0 to around 80. All of the curves show a peak around young adult age (20 - 30) and a peak around middle age (40 - 50) or older adulthood (60+). This indicates that there is a disproportionately young population -- perhaps there was a baby boom in Ironbard about 20 years ago. 
+
+The younger people in our datast may bias our observations -- since they are younger they have had less time to acquire wealth or have more children. While we make our key analyses we have to keep that in mind.
+
+### **q3** Key Analyses
 
 Present the key analyses that support your questions / hypotheses. This could include summary statistics (e.g., a proportion of Islanders), grouped summary statistics (e.g., a proportion for group A, and for group B), or visualizations (e.g., a histogram). This section should be short, and every analysis should directly relate to q4.
 
-### __q4__ Answers
+```{r}
+df |>
+  ggplot(aes(x = NumChildren, y = NetWorth)) +
+  geom_col() +
+  facet_wrap("Town", scales = "free")
+
+df |>
+  ggplot(aes(x = NumChildren, y = NetWorth)) +
+  geom_col()
+```
+
+```{r}
+
+# want to bin ages
+# then find the mean networth for each unique number of children
+# then find the mean number of children
+df <- df |>
+  mutate(age_bin = cut(
+    Age, 
+    breaks = seq(floor(0), ceiling(90), by = 10),
+    include.lowest = TRUE, 
+    right = FALSE  
+  ))
+
+summary_df <- df %>%
+  group_by(age_bin, NumChildren) %>%
+  summarise(mean_networth = mean(NetWorth, na.rm = TRUE), 
+            .groups = 'drop')
+summary_df |>
+  ggplot(aes(x = age_bin, y = mean_networth, fill = factor(NumChildren))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Mean Networth by Age Bin and Number of Children",
+    x = "Age Bin",
+    y = "Mean Networth",
+    fill = "Number of Children"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
+
+```{r}
+df |> 
+  ggplot(aes(x = NumHouseOccupants, y = NetWorth)) +
+  geom_col()
+  
+```
+
+```{r}
+df |>
+  ggplot(aes(x = NumChildren, y = NumHouseOccupants, fill = NumHouseOccupants)) +
+  geom_col(position = "dodge")
+
+```
+```{r}
+df |>
+  ggplot(aes(x = NumChildren, y = NumHouseOccupants, fill = NetWorth)) +
+  geom_tile()
+```
+
+### **q4** Answers
 
 Connect your Key Analyses to your questions / hypotheses. What did you conclude from your study?
