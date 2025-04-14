@@ -249,7 +249,8 @@ can.
 gapminder |>
   filter(year == year_min) |>
   ggplot(aes(x = continent, y = gdpPercap)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_y_log10()
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
@@ -259,6 +260,7 @@ gapminder |>
 - Almost all of the continents have some outliers, except Oceania.
 - Asia has the widest range of GDP per Capita
 - Oceania has the smallest range of GDP per Capita
+- Americas has 2 outliers
 
 **Difficulties & Approaches**:
 
@@ -358,6 +360,7 @@ gapminder_filtered |>
     mapping = aes(color = country),
     size = 2
   ) + 
+  scale_y_log10() + 
   facet_wrap("year") 
 ```
 
@@ -578,10 +581,18 @@ country_names <-
 gapminder |>
   filter(country == country_names[1]) |>
   ggplot(aes(x = year, y = lifeExp, color = gdpPercap)) +
-  geom_point()
+  geom_point() +
+  ggtitle("Life Expectancy in Oman over Time")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task2-1.png)<!-- -->
+
+``` r
+country_names[1]
+```
+
+    ## [1] Oman
+    ## 142 Levels: Afghanistan Albania Algeria Angola Argentina Australia ... Zimbabwe
 
 - Higher life expectancy is directly correlated to higher GDP
 - Higher life expectancy is not linearly related to higher GDP
@@ -619,7 +630,8 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Africa")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task3-1.png)<!-- -->
@@ -630,7 +642,8 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Asia")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task3-2.png)<!-- -->
@@ -641,7 +654,8 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in the Americas")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task3-3.png)<!-- -->
@@ -652,7 +666,8 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Europe")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task3-4.png)<!-- -->
@@ -663,7 +678,8 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Oceania")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task3-5.png)<!-- -->
@@ -682,6 +698,6 @@ gapminder_merged |>
 - Some Eastern European countries (like Albania) show higher increases
   than Western European ones
 - In general, countries with positive GDP growth also saw increases in
-  life expectancy, but the relationship is not strictly linear
+  life expectancy
 - Outliers like Lebanon show that life expectancy can increase despite
   declining GDP

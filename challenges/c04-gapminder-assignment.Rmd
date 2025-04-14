@@ -128,7 +128,8 @@ You may encounter difficulties in visualizing these data; if so document your ch
 gapminder |>
   filter(year == year_min) |>
   ggplot(aes(x = continent, y = gdpPercap)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_y_log10()
 ```
 
 **Observations**:
@@ -136,6 +137,7 @@ gapminder |>
 -   Almost all of the continents have some outliers, except Oceania.
 -   Asia has the widest range of GDP per Capita
 -   Oceania has the smallest range of GDP per Capita
+-   Americas has 2 outliers
 
 **Difficulties & Approaches**:
 
@@ -211,6 +213,7 @@ gapminder_filtered |>
     mapping = aes(color = country),
     size = 2
   ) + 
+  scale_y_log10() + 
   facet_wrap("year") 
 ```
 
@@ -275,7 +278,10 @@ country_names <-
 gapminder |>
   filter(country == country_names[1]) |>
   ggplot(aes(x = year, y = lifeExp, color = gdpPercap)) +
-  geom_point()
+  geom_point() +
+  ggtitle("Life Expectancy in Oman over Time")
+
+country_names[1]
 ```
 
 -   Higher life expectancy is directly correlated to higher GDP
@@ -314,34 +320,39 @@ gapminder_merged |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Africa")
 
 gapminder_merged |>
   filter(continent == "Asia") |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Asia")
 
 gapminder_merged |>
   filter(continent == "Americas") |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in the Americas")
 
 gapminder_merged |>
   filter(continent == "Europe") |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Europe")
 gapminder_merged |>
   filter(continent == "Oceania") |>
   ggplot(aes(x = country, y = diff_lifeExp, color = diff_gdp)) +
   geom_point(size = 2) +
   scale_colour_gradient2(low = "red", mid = "green", high = "blue") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Difference in Life Expectancy Between 1952 and 2007 in Oceania")
 ```
 
 -   Most African countries show a positive increase in life expectancy over the observed period
@@ -350,5 +361,5 @@ gapminder_merged |>
 -   Most countries in the Americas saw life expectancy increases between 10 to 30 years
 -   European countries generally saw smaller increases in life expectancy compared to other continents, mostly between 10 to 20 years
 -   Some Eastern European countries (like Albania) show higher increases than Western European ones
--   In general, countries with positive GDP growth also saw increases in life expectancy, but the relationship is not strictly linear
+-   In general, countries with positive GDP growth also saw increases in life expectancy
 -   Outliers like Lebanon show that life expectancy can increase despite declining GDP
