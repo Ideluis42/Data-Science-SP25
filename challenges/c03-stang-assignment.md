@@ -162,12 +162,14 @@ value for `names_to`.
 ## TASK: Tidy `df_stang`
 df_stang_long <-
   df_stang |>
-  pivot_longer(cols = starts_with("E_") | starts_with("nu_"),
-               names_to = c(".value", "angle"),
-               names_sep = "_") |>
+  pivot_longer(
+    cols = starts_with("E_") | starts_with("nu_"),
+    names_to = c(".value", "angle"),
+    names_sep = "_"
+  ) |>
   mutate(angle = as.integer(angle)) |>
   filter(E > 0, nu > 0)
-      
+
 
 df_stang_long
 ```
