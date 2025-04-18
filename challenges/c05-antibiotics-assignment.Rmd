@@ -42,7 +42,7 @@ define how you will be graded, both on an individual and team basis.
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -128,9 +128,12 @@ is Gram positive or negative.
 
 ```{r q1.1}
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = antibiotic, y = value, fill = gram)) +
   geom_col() +
-  facet_wrap("bacteria", scales = "free")
+  facet_wrap("bacteria", scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 90)) + 
+  scale_y_log10()
 ```
 
 #### Visual 2 (All variables)
@@ -145,10 +148,11 @@ your other visuals.
 
 ```{r q1.2}
 df_antibiotics_pivoted |>
-  ggplot(aes(x = bacteria, y = value, color = gram)) +
-  geom_point(size = 2) +
-  facet_wrap("antibiotic", scales = "free") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
+  ggplot(aes(x = bacteria, y = value, color = gram, shape = antibiotic)) +
+  geom_point(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_y_log10()
 ```
 
 #### Visual 3 (Some variables)
@@ -163,12 +167,14 @@ your other visuals.
 ```{r q1.3}
 # heat map
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = antibiotic, y = bacteria, fill = log(value))) +
   geom_tile(color = "white",
             lwd = 1.5,
             linetype = 1) +
   geom_text(aes(label = value), color = "white", size = 4) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_fill_continuous(name = "log(MIC)")
 ```
 
 #### Visual 4 (Some variables)
@@ -182,6 +188,7 @@ your other visuals.
 
 ```{r q1.4}
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = bacteria, y = log(value), fill = antibiotic)) +
   geom_col(position = "dodge") +
   facet_wrap("gram", scales = "free")+
@@ -199,6 +206,7 @@ your other visuals.
 
 ```{r q1.5}
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = bacteria, y = gram)) +
   geom_point(aes(size = value)) + 
   facet_wrap("antibiotic") +
@@ -238,8 +246,8 @@ What is your response to the question above?
         aeruginosa, and Salmonella exhibit high MIC values, making
         penicillin unsuitable for treating infections caused by these
         bacteria.
--   Streptomycin is more effective against Gram-negative bacteria than
-    penicillin
+-   Streptomycin is more effective against single Gram-negative bacteria
+    than penicillin
     -   Proteus vulgaris, Salmonella species, and Pseudomonas aeruginosa
         have lower MIC values
     -   Some Streptococcus species and Staphylococcus species show

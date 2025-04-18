@@ -194,9 +194,12 @@ is Gram positive or negative.
 
 ``` r
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = antibiotic, y = value, fill = gram)) +
   geom_col() +
-  facet_wrap("bacteria", scales = "free")
+  facet_wrap("bacteria", scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 90)) + 
+  scale_y_log10()
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.1-1.png)<!-- -->
@@ -213,11 +216,15 @@ your other visuals.
 
 ``` r
 df_antibiotics_pivoted |>
-  ggplot(aes(x = bacteria, y = value, color = gram)) +
-  geom_point(size = 2) +
-  facet_wrap("antibiotic", scales = "free") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
+  ggplot(aes(x = bacteria, y = value, color = gram, shape = antibiotic)) +
+  geom_point(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_y_log10()
 ```
+
+    ## Warning: Width not defined
+    ## ℹ Set with `position_dodge(width = ...)`
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.2-1.png)<!-- -->
 
@@ -233,12 +240,14 @@ your other visuals.
 ``` r
 # heat map
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = antibiotic, y = bacteria, fill = log(value))) +
   geom_tile(color = "white",
             lwd = 1.5,
             linetype = 1) +
   geom_text(aes(label = value), color = "white", size = 4) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_fill_continuous(name = "log(MIC)")
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.3-1.png)<!-- -->
@@ -254,6 +263,7 @@ your other visuals.
 
 ``` r
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = bacteria, y = log(value), fill = antibiotic)) +
   geom_col(position = "dodge") +
   facet_wrap("gram", scales = "free")+
@@ -273,6 +283,7 @@ your other visuals.
 
 ``` r
 df_antibiotics_pivoted |>
+  mutate(bacteria = fct_reorder(bacteria, value)) |>
   ggplot(aes(x = bacteria, y = gram)) +
   geom_point(aes(size = value)) + 
   facet_wrap("antibiotic") +
@@ -313,8 +324,8 @@ What is your response to the question above?
   - Gram-negative genera like Escherichia coli, Pseudomonas aeruginosa,
     and Salmonella exhibit high MIC values, making penicillin unsuitable
     for treating infections caused by these bacteria.
-- Streptomycin is more effective against Gram-negative bacteria than
-  penicillin
+- Streptomycin is more effective against single Gram-negative bacteria
+  than penicillin
   - Proteus vulgaris, Salmonella species, and Pseudomonas aeruginosa
     have lower MIC values
   - Some Streptococcus species and Staphylococcus species show moderate
