@@ -237,8 +237,8 @@ Use the following test to check that you downloaded the correct file:
 ``` r
 ## NOTE: No need to edit, use to check you got the right file.
 assertthat::assert_that(
-  df_income %>%
-    filter(Geography == "0500000US01001") %>%
+  df_income |>
+    filter(Geography == "0500000US01001") |>
     pull(`Estimate!!Percent Distribution!!FAMILY INCOME BY FAMILY SIZE!!2-person families`)
   == 45.6
 )
@@ -265,39 +265,38 @@ a capture group, for example `"(Estimate|Margin of Error)"`.
 
 ``` r
 df_q3 <-
-  df_income %>%
+  df_income |>
   select(
     Geography,
     contains("Geographic"),
     # This will select only the numeric d-person family columns;
     # it will ignore the annotation columns
     contains("median") & matches("\\d-person families") & !contains("Annotation of")
-  ) %>%
-  mutate(across(contains("median"), as.numeric)) %>%
+  ) |>
+  mutate(across(contains("median"), as.numeric)) |>
 ## TODO: Pivot the data, rename the columns
   pivot_longer(
     cols = -c(Geography, `Geographic Area Name`),
     names_to = c("category", ".value"),
     names_pattern = "(Estimate|Margin of Error)!!Median income \\(dollars\\)(?: MOE)?!!FAMILY INCOME BY FAMILY SIZE!!(.*)"
-  ) |> pivot_longer(
-    cols = `2-person families`:`6-person families`,
+  ) |> 
+  pivot_longer(
+    cols = matches("\\d+-person families"),
     names_to = "fam_size",
     values_to = "val"
-  ) %>%
-  # 2) Pivot "Estimate"/"Margin of Error" from rows to columns
+  ) |>
   pivot_wider(
     names_from = category,     # "Estimate" or "Margin of Error"
     values_from = val,         # numeric values
     names_prefix = "income_"
-  ) %>%
-  # 3) Rename to final tidy names
+  ) |>
   rename(
     Geography = Geography,
     geographic_area_name = `Geographic Area Name`,
     category = fam_size,
     income_estimate = income_Estimate,
     income_moe = `income_Margin of Error`
-  ) %>%
+  ) |>
   glimpse()
 ```
 
@@ -354,7 +353,7 @@ $$\text{MOE} = 1.645 \times \text{SE}.$$
 ### **q4** Convert the margin of error to standard error. Additionally, compute a 99% confidence interval on income, and normalize the standard error to `income_CV = income_SE / income_estimate`. Provide these columns with the names `income_SE, income_lo, income_hi, income_CV`.
 
 ``` r
-df_q4 <- df_q3 %>%
+df_q4 <- df_q3 |>
   mutate(
     income_SE = income_moe / 1.645,
     income_lo = income_estimate - (2.576 * income_SE),
@@ -457,7 +456,7 @@ compare population with income.
 ## TODO: Join df_q4 and df_pop by the appropriate column
 
 df_data <-
-  df_q4 %>%
+  df_q4 |>
   left_join(df_pop, by = "Geography")
 ```
 
@@ -534,8 +533,8 @@ and uncertainty.
 (e.g. variance) and sample size.
 
 ``` r
-df_data %>%
-  mutate(pop_bin = cut_number(population_estimate, n = 5)) %>%
+df_data |>
+  mutate(pop_bin = cut_number(population_estimate, n = 5)) |>
   ggplot(aes(x = pop_bin, y = income_SE, fill = category)) +
   geom_boxplot() +
   labs(
@@ -551,22 +550,38 @@ df_data %>%
 
 ![](c09-income-assignment_files/figure-gfm/q7-task-1.png)<!-- -->
 
+``` r
+# straight scatterplot
+
+df_data |>
+  ggplot(aes(x = population_estimate, y = income_SE)) +
+  geom_point()
+```
+
+    ## Warning: Removed 814 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](c09-income-assignment_files/figure-gfm/q7-task-2.png)<!-- -->
+
 **Observations**:
 
 - What *overall* trend do you see between `SE` and population? Why might
   this trend exist?
-  - The overall trend isi that as population size increases, the
-    standard error decreases. This trend might exist because the
-    standard error (SE) is partly determined by sample size—larger
-    counties typically have larger samples, which reduces uncertainty
-    (and thus SE). Conversely, smaller counties have fewer respondents,
-    making the estimate more variable and increasing SE.
+  - The overall trend is that as population size increases, the standard
+    error decreases. This trend might exist because the standard error
+    (SE) is partly determined by sample size—larger counties typically
+    have larger samples, which reduces uncertainty (and thus SE).
+    Conversely, smaller counties have fewer respondents, making the
+    estimate more variable and increasing SE.
 - What does this *overall* trend tell you about the relative ease of
   studying small vs large counties?
-  - It’s generally harder to study smaller counties in a statistically
-    precise way because their estimates have higher uncertainty (larger
-    SE). Larger counties yield more precise estimates (lower SE), making
-    it easier to detect differences or changes in income.
+  - The overall trend tells us its easier to study larger counties
+    because you can get a larger sample size from them, leading to a
+    lower standard error. If the Census Bureau collects a sample that is
+    proportional to a population size, then larger counties will have
+    larger sample sizes, lowering the standard error. Conversely,
+    smaller counties will have smaller sample sizes, raising the
+    standard error.
 
 # Going Further
 
