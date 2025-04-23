@@ -83,9 +83,8 @@ head(df_psaap)
 -   Seems like x stays constant while idx iterates
     -   x increments in values of 0.25
 -   Not surre what the other variables are -- length and width are probably L and W
-- ` Seems to be a lot of variablity in the L, W, U_0, etc
+-   \` Seems to be a lot of variablity in the L, W, U_0, etc
 -   Lots of variables
-
 
 The important variables in this dataset are:
 
@@ -124,9 +123,8 @@ The primary output of interest is `T_norm = (avg_T - T_f) / T_f`, the normalized
 ##       each identified by different values of idx
 
 df_psaap |>
-  ggplot(aes(x = x, y = T_norm)) +
-  geom_point() +
-  facet_wrap("idx")
+  ggplot(aes(x = x, y = T_norm, group = idx)) +
+  geom_line()
 ```
 
 ## Modeling
@@ -176,7 +174,7 @@ rsquare(fit_nonphysical, df_validate)
 -   What *Category* of variable is `avg_T`? Why is it such an effective predictor?
     -   avg_T is an output variable — It works really well as a predictor because it already “knows” a lot about the answer
 -   Would we have access to `avg_T` if we were trying to predict a *new* value of `T_norm`? Is `avg_T` a valid predictor?
-    -   Nope — if we’re trying to predict a new value of T_norm, we wouldn’t have access to avg_T yet, since it’s something that gets calculated after the simulation or experiment runs 
+    -   Nope — if we’re trying to predict a new value of T_norm, we wouldn’t have access to avg_T yet, since it’s something that gets calculated after the simulation or experiment runs
 -   What *Category* of variable is `idx`? Does it have any physical meaning?
     -   `idx` is a metadata variable, which means it does not have any physical meaning -- it is just marks the simulation number.
 
@@ -204,9 +202,9 @@ summary(fit_q4)
 -   What is the regression coefficient for `x`? What about the regression coefficient for `T_f`?
     -   The regression coefficient for `x` is 1.01881 and for `T_f` is -0.0003791.
 -   What is the standard deviation of `x` in `df_psaap`? What about the standard deviation of `T_f`?
-    -   The standard deviation of x is 1.656 and the standard deviation of T_f is 1.173 * 10 ^ -3
+    -   The standard deviation of x is ` 1.656*sqrt(80) = 14.811` and the standard deviation of T_f is `1.173 * 10^-3 * sqrt(80) = 0.0104`
 -   How do these standard deviations relate to the regression coefficients for `x` and `T_f`?
-    -   The standard deviation of x is much larger than that of T_f, and that lines up with what we see in the model. The coefficient for x is also quite large (about 1.02), meaning changes in x have a strong impact on T_norm. `T_f` has a smaller standard deviation and its regression coefficient is also very small, which means that the when `T_f` changes, it barely affects `T_norm`.
+    -   x has a large standard deviation and a large coefficient. This means that not only does x vary a lot across the data, but that variation has a strong effect on T_norm. Even small relative shifts in x can have a big impact on the output. On the other hand, T_f has a very small standard deviation and a tiny coefficient. This means T_f doesn’t vary much, and even when it does, it has little to no meaningful impact on T_norm. Its effect is essentially drowned out by noise in the system.
 -   Note that literally *all* of the inputs above have *some* effect on the output `T_norm`; so they are all "significant" in that sense. What does this tell us about the limitations of statistical significance for interpreting regression coefficients?
     -   It shows that statistical significance isn’t the whole story. Just because a variable isn’t marked as "statistically significant" in the model doesn’t mean it has no effect — it might just mean we don’t have enough data to confidently say the effect is real, or the effect is small compared to the noise.
 
@@ -318,7 +316,7 @@ bind_rows(
 -   Which model tends to be more accurate? How can you tell from this predicted-vs-actual plot?
     -   Model q4 is more accurate -- you can tell because the points are much closer to the diagonal line, meaning the predicted values are very close to the actual T_norm values
 -   Which model tends to be *more confident* in its predictions? Put differently, which model has *narrower prediction intervals*?
-    -   Model q4 is also more confident because it has narrower prediction intervals. 
+    -   Model q4 is also more confident because it has narrower prediction intervals.
 -   How many predictors does the `fit_simple` model need in order to make a prediction? What about your model `fit_q4`?
     -   The `fit_simple` model only uses `x`, while the `fit_q4` model uses 17 predictors.
 
@@ -376,21 +374,21 @@ df_intervals <-
 
 
 df_intervals |>
-  summarize(lwr_bound = mean(ci_lwr),
-          upr_bound = mean(ci_upr))
+  summarize(lwr_bound = mean(pi_lwr),
+          upr_bound = mean(pi_upr))
 
 ```
 
 **Recommendation**:
 
 -   How much do you trust your model? Why?
-    -   I have moderate confidence in the model. It explains about 66% of the variation in T_norm (Adjusted R² = 0.6446), which suggests it captures important trends in the data, though not all of the variability. All predictors in the model (x, L, W, U_0) are statistically significant at the 0.01 level, which strengthens trust in their influence on the output. However, the residual standard error (~0.289) is non-negligible, meaning predictions will still have a fair amount of uncertainty.
+    -   I have moderate confidence in the model. It explains about 66% of the variation in T_norm (Adjusted R² = 0.6446), which suggests it captures important trends in the data, though not all of the variability. All predictors in the model (x, L, W, U_0) are statistically significant at the 0.01 level, which strengthens trust in their influence on the output. However, the residual standard error (\~0.289) is non-negligible, meaning predictions will still have a fair amount of uncertainty.
 -   What kind of interval---confidence or prediction---would you use for this task, and why?
     -   A prediction interval is the appropriate choice. Since the team is planning around the performance of a single prototype, the interval should account for both model uncertainty and the natural variability in future outcomes. A confidence interval would only estimate the uncertainty around the average response, not individual cases.
 -   What fraction of validation cases lie within the intervals you predict? (NB. Make sure to calculate your intervals *based on the validation data*; don't just use one single interval!) How does this compare with `pr_level`?
     -   Approximately 82.5% of the validation cases fall within the 80% prediction intervals generated by the model. This is slightly higher than the desired coverage level (pr_level = 0.80), indicating that the prediction intervals are slightly conservative, which is actually a good thing in engineering design where safety margins are valued.
 -   What interval for `T_norm` would you recommend the design team to plan around?
-    -   0.680 and 0.864
+    -   0.386 and 1.158
 -   Are there any other recommendations you would provide?
     -   If the team has control over other variables besides x, L, W, and U_0, incorporating them into the model could improve accuracy.
 

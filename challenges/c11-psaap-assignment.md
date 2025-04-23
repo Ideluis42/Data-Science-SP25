@@ -273,9 +273,8 @@ of fluid, for different experimental settings (e.g. different dimensions
 ##       each identified by different values of idx
 
 df_psaap |>
-  ggplot(aes(x = x, y = T_norm)) +
-  geom_point() +
-  facet_wrap("idx")
+  ggplot(aes(x = x, y = T_norm, group = idx)) +
+  geom_line()
 ```
 
 ![](c11-psaap-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
@@ -431,16 +430,18 @@ summary(fit_q4)
     -0.0003791.
 - What is the standard deviation of `x` in `df_psaap`? What about the
   standard deviation of `T_f`?
-  - The standard deviation of x is 1.656 and the standard deviation of
-    T_f is 1.173 \* 10 ^ -3
+  - The standard deviation of x is `1.656*sqrt(80) = 14.811` and the
+    standard deviation of T_f is `1.173 * 10^-3 * sqrt(80) = 0.0104`
 - How do these standard deviations relate to the regression coefficients
   for `x` and `T_f`?
-  - The standard deviation of x is much larger than that of T_f, and
-    that lines up with what we see in the model. The coefficient for x
-    is also quite large (about 1.02), meaning changes in x have a strong
-    impact on T_norm. `T_f` has a smaller standard deviation and its
-    regression coefficient is also very small, which means that the when
-    `T_f` changes, it barely affects `T_norm`.
+  - x has a large standard deviation and a large coefficient. This means
+    that not only does x vary a lot across the data, but that variation
+    has a strong effect on T_norm. Even small relative shifts in x can
+    have a big impact on the output. On the other hand, T_f has a very
+    small standard deviation and a tiny coefficient. This means T_f
+    doesn’t vary much, and even when it does, it has little to no
+    meaningful impact on T_norm. Its effect is essentially drowned out
+    by noise in the system.
 - Note that literally *all* of the inputs above have *some* effect on
   the output `T_norm`; so they are all “significant” in that sense. What
   does this tell us about the limitations of statistical significance
@@ -711,14 +712,14 @@ df_intervals <-
 
 
 df_intervals |>
-  summarize(lwr_bound = mean(ci_lwr),
-          upr_bound = mean(ci_upr))
+  summarize(lwr_bound = mean(pi_lwr),
+          upr_bound = mean(pi_upr))
 ```
 
     ## # A tibble: 1 × 2
     ##   lwr_bound upr_bound
     ##       <dbl>     <dbl>
-    ## 1     0.680     0.864
+    ## 1     0.387      1.16
 
 **Recommendation**:
 
@@ -751,7 +752,7 @@ df_intervals |>
     valued.
 - What interval for `T_norm` would you recommend the design team to plan
   around?
-  - 0.680 and 0.864
+  - 0.386 and 1.158
 - Are there any other recommendations you would provide?
   - If the team has control over other variables besides x, L, W, and
     U_0, incorporating them into the model could improve accuracy.
