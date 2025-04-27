@@ -1,7 +1,7 @@
 ---
 title: "Massachusetts Highway Stops"
-author: "(Your name here)"
-date: 2020-
+author: "Isa de Luis"
+date: 2025-04-24
 output:
   github_document:
     toc: true
@@ -41,7 +41,6 @@ library(broom)
 ```
 
 # Setup
-<!-- -------------------------------------------------- -->
 
 ### __q1__ Go to the [Stanford Open Policing Project](https://openpolicing.stanford.edu/data/) page and download the Massachusetts State Police records in `Rds` format. Move the data to your `data` folder and match the `filename` to load the data.
 
@@ -49,8 +48,8 @@ library(broom)
 
 ```{r q1-task}
 ## TODO: Download the data, move to your data folder, and load it
-filename <- NA_character_
-df_data <- readRDS(filename)
+filename <- "data/ma_statewide_2020_04_01.csv"
+df_data <- read_csv(filename)
 ```
 
 # EDA
@@ -58,12 +57,41 @@ df_data <- readRDS(filename)
 
 ### __q2__ Do your "first checks" on the dataset. What are the basic facts about this dataset?
 
+```{r}
+glimpse(df_data)
+
+summary(df_data)
+
+head(df_data)
+
+```
 
 **Observations**:
 
 - What are the basic facts about this dataset?
-- (Your responses here)
-- ...
+- The data set contains data about different traffic stops on MA Highways
+- For each stop, the following data was recorded:
+  - Date
+  - Location (city)
+  - County
+  - Age of the driver
+  - Race of the driver
+  - Sex of the driver
+  - Type of traffic stop (there are more than vehicular traffic stops?)
+  - If there was an arrest made
+  - If a citation was issued
+  - If a warnin was issued
+  - The outcome
+  - If contaband was found, and what type of contraband it was
+  - If a frisk was performed
+  - If a search was confucted and the basis for it
+  - Reason for stop
+  - Vehicle type
+  - Vehicle state registration
+  
+- Questions:
+  - What other reasons for stops are there other than speed?
+  - Can both a citation and a warning be issued?
 
 Note that we have both a `subject_race` and `race_Raw` column. There are a few possibilities as to what `race_Raw` represents:
 
@@ -75,15 +103,102 @@ Let's try to distinguish between these two possibilities.
 ### __q3__ Check the set of factor levels for `subject_race` and `raw_Race`. What do you note about overlap / difference between the two sets?
 
 ```{r q3-task}
-## TODO: Determine the factor levels for subject_race and raw_Race
+df_data |>
+  count(subject_race) 
+  
+
+df_data |>
+  count(raw_Race)
+
+# find overlap / differences between two sets
+
+subject_lvls <-
+  df_data |>
+  pull(subject_race) |>
+  unique()
+
+raw_lvls <-
+  df_data |>
+  pull(raw_Race) |>
+  unique()
+
+# What’s in both?
+intersect(subject_lvls, raw_lvls)
+# What’s only in subject_race?
+setdiff(subject_lvls, raw_lvls)
+# What’s only in raw_Race?
+setdiff(raw_lvls, subject_lvls)
+```
+```{r}
+# doing this for my own learning/curiosity about data cleaning
+
+# I want to change the values in raw_Race to match what we have in subject_race
+# Asian or Pacific Islander -> asian/pacific islander
+# Black -> black
+# Hispanic -> hispanic
+# White -> white
+
+df_data_cleaned <- df_data |>
+  mutate(
+    raw_Race = case_when(
+      raw_Race == "Asian or Pacific Islander" ~ "asian/pacific islander",
+      raw_Race == "Black"                    ~ "black",
+      raw_Race == "Hispanic"                 ~ "hispanic",
+      raw_Race == "White"                    ~ "white",
+      TRUE                                   ~ raw_Race     # everything else stays the same
+    )
+  )
+
+
+# find overlap / differences between two sets
+
+subject_lvls <-
+  df_data_cleaned |>
+  pull(subject_race) |>
+  unique()
+
+raw_lvls <-
+  df_data_cleaned |>
+  pull(raw_Race) |>
+  unique()
+
+# What’s in both?
+intersect(subject_lvls, raw_lvls)
+# What’s only in subject_race?
+setdiff(subject_lvls, raw_lvls)
+# What’s only in raw_Race?
+setdiff(raw_lvls, subject_lvls)
 ```
 
 **Observations**:
 
 - What are the unique values for `subject_race`?
+  - asian/pacific islander
+  - black
+  - hispanic
+  - other
+  - unknown
+  - white
+  - NA
 - What are the unique values for `raw_Race`?
+  - A
+  - Asian or Pacific Islander
+  - Black
+  - Hispanic
+  - Middle Eastern or East Indian (South Asian)
+  - None - for no operator present citations only
+  - White
+  - NA
 - What is the overlap between the two sets?
+  - While there is no overlap between column names due to capitalization, there are very similar categories:
+    - Asian/pacific islanders
+    - black
+    - white
+    - Hispanic
+    - NA
+  
 - What is the difference between the two sets?
+  - In the `raw_Race` set there are a few additional categories --  there is an `A` category, which could possibly be a transcription mistake, a `Middle Eastern or East Indian` category, an `American Indan or Alaskan Native` category, and a `None` category. In the `subject_race` set, there is an `unknown` category, which isn't present in the `raw_Race` set
 
 ### __q4__ Check whether `subject_race` and `raw_Race` match for a large fraction of cases. Which of the two hypotheses above is most likely, based on your results?
 
@@ -91,6 +206,19 @@ Let's try to distinguish between these two possibilities.
 
 ```{r q4-task}
 ## TODO: Devise your own way to test the hypothesis posed above.
+df_q4 <- 
+  df_data_cleaned |>
+  mutate(
+    race_match = subject_race == raw_Race
+  )
+
+df_q4 |>
+  summarise(
+    total       = n(),
+    n_matched   = sum(race_match, na.rm = TRUE),
+    n_unmatched = sum(!race_match, na.rm = TRUE),
+    pct_matched = mean(race_match, na.rm = TRUE) * 100
+  )
 ```
 
 **Observations**
@@ -102,24 +230,58 @@ Between the two hypotheses:
 
 which is most plausible, based on your results?
 
-- (Your response here)
+- `race_Raw` seems to be an unprocessed version of `subject_race`.
 
 ## Vis
 <!-- ------------------------- -->
 
 ### __q5__ Compare the *arrest rate*---the fraction of total cases in which the subject was arrested---across different factors. Create as many visuals (or tables) as you need, but make sure to check the trends across all of the `subject` variables. Answer the questions under *observations* below.
 
-(Note: Create as many chunks and visuals as you need)
+```{r}
+
+# subject age
+df_data_cleaned |>
+  group_by(subject_age) |>
+  summarise(
+      total_cases = n(),
+      total_arrests = sum(arrest_made, na.rm = TRUE),
+      arrest_rate = mean(arrest_made, na.rm = TRUE)
+    ) |>
+  ggplot(aes(x = subject_age, y = arrest_rate)) +
+  geom_point()
+
+
+df_data_cleaned |>
+  group_by(subject_sex) |>
+  summarise(
+      total_cases = n(),
+      total_arrests = sum(arrest_made, na.rm = TRUE),
+      arrest_rate = mean(arrest_made, na.rm = TRUE)
+    ) |>
+  ggplot(aes(x = subject_sex, y = arrest_rate)) +
+  geom_col()
+
+df_data_cleaned |>
+  group_by(subject_race) |>
+  summarise(
+      total_cases = n(),
+      total_arrests = sum(arrest_made, na.rm = TRUE),
+      arrest_rate = mean(arrest_made, na.rm = TRUE)
+    ) |>
+  ggplot(aes(x = subject_race, y = arrest_rate)) +
+  geom_col()
+```
 
 
 **Observations**:
+- General observation : The `arrest_rate` tends to be very low, regardless of factor
 
 - How does `arrest_rate` tend to vary with `subject_age`?
-  - (Your response here)
+  - Seems to peak in the low/mid twenties. Before ~23 there seems to be no trend -- perhaps due to a lack of data? After ~23, there's a clear trend -- the arrest rate peaks between 25 and 30 before declining.
 - How does `arrest_rate` tend to vary with `subject_sex`?
-  - (Your response here)
+  - Men seem to be arrested more frequently than women
 - How does `arrest_rate` tend to vary with `subject_race`?
-  - (Your response here)
+  - Black, hispanic, and "other" drivers tend to be arrested the most, with hispanic drivers having the highest `arrest_rate`. Unknown seems to have the lowest arrest rate -- I wonder if that's because they were given a traffic citation through virtual means and not by having an officer actually stop them.
 
 # Modeling
 <!-- -------------------------------------------------- -->
@@ -147,9 +309,9 @@ fit_q6 %>% tidy()
 **Observations**:
 
 - Which `subject_race` levels are included in fitting the model?
-  - (Your response here)
+  - white, black, hispanic
 - Which `subject_race` levels have terms in the model?
-  - (Your response here)
+  - white, hispanic
 
 You should find that each factor in the model has a level *missing* in its set of terms. This is because R represents factors against a *reference level*: The model treats one factor level as "default", and each factor model term represents a change from that "default" behavior. For instance, the model above treats `subject_sex==male` as the reference level, so the `subject_sexfemale` term represents the *change in probability* of arrest due to a person being female (rather than male).
 
@@ -163,17 +325,32 @@ By default `glm` uses the first factor level present as the reference level. The
 ## TODO: Re-fit the logistic regression, but set "white" as the reference
 ## level for subject_race
 
+fit_q7 <- 
+  glm(
+    formula = arrest_made ~ subject_age + subject_race + subject_sex,
+    data = df_data |>
+      filter(
+        !is.na(arrest_made),
+        subject_race %in% c("white", "black", "hispanic")
+      ) |>
+      mutate(
+        subject_race = fct_relevel(subject_race, "white")
+      ),
+    family = "binomial"
+  )
+
 fit_q7 %>% tidy()
 ```
 
 **Observations**:
 
 - Which `subject_race` level has the highest probability of being arrested, according to this model? Which has the lowest probability?
-  - (Your response here)
+  - According to the model, hispanic people have the highest probability of being arrested and white people have the lowest probability of being arrested
 - What could explain this difference in probabilities of arrest across race? List **multiple** possibilities.
-  - (Your response here)
+  - Racism and implicit biases could lead to police officers arrested more hispanic folks
+  - There could be some socioeconomic factors at play -- if hispanic folks live in higher-crime areas and are getting stopped there, it may lead to a higher arrest rate.
 - Look at the set of variables in the dataset; do any of the columns relate to a potential explanation you listed?
-  - (Your response here)
+  - Maybe contraband_found can show whether particular groups are more likely to be searched and have contraband found
 
 One way we can explain differential arrest rates is to include some measure indicating the presence of an arrestable offense. We'll do this in a particular way in the next task.
 
@@ -182,21 +359,69 @@ One way we can explain differential arrest rates is to include some measure indi
 ```{r q8-task}
 ## TODO: Repeat the modeling above, but control for whether contraband was found
 ## during the police stop
+fit_q8 <-
+  glm(
+    formula = arrest_made ~ subject_age + subject_race + subject_sex + contraband_found,
+    data = df_data |>
+      filter(
+        !is.na(arrest_made),
+        subject_race %in% c("white", "black", "hispanic")
+      ) |>
+      mutate(
+        subject_race = fct_relevel(subject_race, "white"),
+        contraband_found = fct_relevel(as.factor(contraband_found), "FALSE")
+      ),
+    family = "binomial"
+  )
 fit_q8 %>% tidy()
 ```
 
 **Observations**:
 
 - How does controlling for found contraband affect the `subject_race` terms in the model?
-  - (Your response here)
+  - The coefficient for Black subjects dropped sharply and is now small and negative. The coefficient for hispanic subjects also decreased.
 - What does the *finding of contraband* tell us about the stop? What does it *not* tell us about the stop?
-  - (Your response here)
+  - Contraband discovery is highly predictive of an arrest -> suggests that the stop revealed evidence of illegal behavior
+  - Does NOT tell us whether the initial stop was fair or unbiased
+  - Does NOT tell us why the officer chose to search the car
 
 ### __q9__ Go deeper: Pose at least one more question about the data and fit at least one more model in support of answering that question.
+Question: How does the type of contraband found affect arrest rates?
 
+Types of contraband:
+  - Alcohol
+  - Drugs
+  - Weapons
+  - Other
 **Observations**:
-
-- Document your question and findings
+```{r q9-task}
+## TODO: Repeat the modeling above, but control for whether contraband was found
+## during the police stop
+fit_q9 <-
+  glm(
+    formula = arrest_made ~ subject_age + subject_race + subject_sex + contraband_alcohol + contraband_drugs + contraband_weapons + contraband_other,
+    data = df_data |>
+      filter(
+        !is.na(arrest_made),
+        subject_race %in% c("white", "black", "hispanic")
+      ) |>
+      mutate(
+        subject_race = fct_relevel(subject_race, "white"),
+        contraband_found = fct_relevel(as.factor(contraband_found), "FALSE")
+      ),
+    family = "binomial"
+  )
+fit_q9 %>% tidy()
+```
+**Observations**
+  - All types of contraband are strongly associated with a higher probability of arrest
+  - Finding alcohol or “other” contraband leads to the largest increases in arrest probability
+    - What is "other" contraband??
+  - Finding weapons surprisingly has a smaller coefficient compared to alcohol and drugs (still positive but less strong than you might expect)
+  - Racial disparities shrink further when you control not just for contraband presence, but for what kind of contraband was found
+  - Differences between White and Black subjects in arrest probability almost disappear after full adjustment
+  - Hispanic subjects still have higher odds of arrest even after adjusting for contraband type
+    
 
 ## Further Reading
 <!-- -------------------------------------------------- -->
