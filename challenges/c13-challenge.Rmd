@@ -57,7 +57,7 @@ df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_
 ## Plots
 ```{r}
 df_combined |>
-  ggplot(aes(x = lpep_pickup_datetime, y = congestion_surcharge)) +
+  ggplot(aes(x = year, y = congestion_surcharge)) +
   geom_point()
 ```
 
