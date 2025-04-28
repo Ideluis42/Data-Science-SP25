@@ -1,0 +1,36 @@
+---
+title: "c13-project"
+author: "Isabel de Luis"
+date: "2025-04-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+if (!require(dplyr)) install.packages("arrow")
+
+library(tidyverse)
+library(arrow)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+```
+
+## Data
+
+```{r}
+df_feb_25_green <- read_parquet("data/project/green_tripdata_2025-02.parquet")
+df_feb_25_yellow <- read_parquet("data/project/yellow_tripdata_2025-02.parquet")
+
+df_feb_24_green <- read_parquet("data/project/green_tripdata_2024-02.parquet")
+df_feb_24_yellow <- read_parquet("data/project/yellow_tripdata_2024-02.parquet")
+```
+
+```{r}
+df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_feb_24_yellow)
+```
+
