@@ -31,6 +31,34 @@ df_feb_24_yellow <- read_parquet("data/project/yellow_tripdata_2024-02.parquet")
 ```
 
 ```{r}
+
+df_feb_25_green <- 
+  df_feb_25_green |>
+  mutate(year = 2025,
+         color = "green")
+
+df_feb_24_green <- 
+  df_feb_24_green |>
+  mutate(year = 2024,
+         color = "green")
+
+df_feb_25_yellow <- 
+  df_feb_25_yellow |>
+  mutate(year = 2025,
+         color = "yellow")
+
+df_feb_24_yellow <- 
+  df_feb_24_yellow |>
+  mutate(year = 2024,
+         color = "yellow")
 df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_feb_24_yellow)
 ```
+
+## Plots
+```{r}
+df_combined |>
+  ggplot(aes(x = lpep_pickup_datetime, y = congestion_surcharge)) +
+  geom_point()
+```
+
 
