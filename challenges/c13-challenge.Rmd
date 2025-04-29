@@ -1,8 +1,10 @@
 ---
-title: "c13-project"
-author: "Isabel de Luis"
-date: "2025-04-28"
-output: html_document
+title: "Challenge 13: NYC Taxi Data"
+author: "Isa de Luis & Sam Mendelson"
+date: 2025-04-28
+output: 
+  github_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +22,66 @@ library(dplyr)
 
 ```
 
-## Data
+# Overview
+
+This dataset, [from the NYC Taxi and Limousine Commission](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page), contains information about taxi trips in New York City.
+
+New York City enacted a **congestion pricing** scheme in January 2025, which charges a fee for all vehicles entering Manhattan below 60th Street. While personal vehicles can get charged up to \$9/day (charged at first entry during a specified calendar day), congestion pricing for taxis works differently: they pay \$0.75/entry, which is then passed on to the passenger.
+
+## Columns
+
+| Field Name | Category | Description |
+|---------------------------------|---------------------|------------------|
+| `VendorID` | Vendor Info | A code indicating the TPEP provider that provided the record. 1 = Creative Mobile Technologies, LLC 2 = Curb Mobility, LLC 6 = Myle Technologies Inc 7 = Helix |
+| `tpep_pickup_datetime` | Time | The date and time when the meter was engaged. |
+| `tpep_dropoff_datetime` | Time | The date and time when the meter was disengaged. |
+| `passenger_count` | Passenger Info | The number of passengers in the vehicle. |
+| `trip_distance` | Trip Info | The elapsed trip distance in miles reported by the taximeter. |
+| `RatecodeID` | Fare Info | The final rate code in effect at the end of the trip. 1 = Standard rate 2 = JFK 3 = Newark 4 = Nassau or Westchester 5 = Negotiated fare 6 = Group ride 99 = Null/unknown |
+| `store_and_fwd_flag` | Trip Info | Flag indicating whether the trip record was stored before being sent to the vendor.<br>Y = store and forward trip<br>N = not a store and forward trip |
+| `PULocationID` | Location | TLC Taxi Zone where the taximeter was engaged. |
+| `DOLocationID` | Location | TLC Taxi Zone where the taximeter was disengaged. |
+| `payment_type` | Payment Info | Numeric code indicating how the passenger paid. 0 = Flex Fare 1 = Credit card 2 = Cash 3 = No charge 4 = Dispute 5 = Unknown 6 = Voided trip |
+| `fare_amount` | Fare Info | Time-and-distance fare calculated by the meter. [More info](https://www.nyc.gov/site/tlc/passengers/taxi-fare.page) |
+| `extra` | Fare Info | Miscellaneous extras and surcharges. |
+| `mta_tax` | Tax Info | Tax automatically triggered based on the metered rate. |
+| `tip_amount` | Fare Info | Tip amount – automatically populated for credit card trips. Cash tips are not included. |
+| `tolls_amount` | Fare Info | Total amount of all tolls paid in trip. |
+| `improvement_surcharge` | Fare Info | Improvement surcharge assessed at the flag drop since 2015. |
+| `total_amount` | Fare Info | Total amount charged to passengers (excludes cash tips). |
+| `congestion_surcharge` | Fare Info | Total amount collected for NYS congestion surcharge. |
+| `airport_fee` | Fare Info | For pickups at LaGuardia and JFK airports only. |
+| `cbd_congestion_fee` | Fare Info | Per-trip charge for MTA's Congestion Relief Zone (starting Jan. 5, 2025). |
+
+## Congestion Pricing vs. Congestion Surcharge
+
+You may have noticed that there are two different fees related to congestion in the dataset: `congestion_surcharge` and `cbd_congestion_fee`. The former is a fee that was introduced in 2019 to help fund the MTA, while the latter is a new fee that was introduced in 2025 as part of the congestion pricing scheme.
+
+The politics of congestion pricing have been contentious in New York City for years. The plan was first proposed in 2007, but it wasn't until 2019 that the state legislature passed a bill allowing for congestion pricing. Tolls for private vehicles were sacked, however a $2.50 per ride fee for taxi and ride share trips that originate in, end in, or pass through Manhattan below 96th street was established, which is in our dataset as the `congestion_surcharge`.
+
+In 2025, the congestion pricing scheme was fully implemented, which is in our dataset as `cbd_congestion_fee`. This fee is charged to all vehicles entering Manhattan below 60th Street, regardless of whether they are taxis or private vehicles. The goal of the fee is to reduce traffic congestion and improve air quality in Manhattan.
+
+For taxi trips, these two fees can add together. For example, a trip going from 112th Street to 16th Street would pay both fees, as the trip:
+
+- Begins above 96th street - no fee
+- Ends below 96th street, therefore the `congestion_surcharge` is applied
+- Needs to enter the congestion pricing zone (destination is below 60th street), therefore the `cbd_congestion_fee` is applied
+
+This results in a total fee of $3.25 ($2.50 from the congestion surcharge and $0.75 from the congestion pricing scheme) applied to the trip.
+
+Read more about the congestion _surcharge_ [here](https://www.tax.ny.gov/bus/cs/csidx.htm) and the congestion _pricing_ [here](https://portal.311.nyc.gov/article/?kanumber=KA-03612).
+
+## TLC Taxi Zones
+
+The dataset tells us, roughly, where the trips start and end. New York City is broken up into TLC taxi zones, and we have the pickup and dropoff zone IDs in the dataset. The TLC taxi zones are not the same as the NYC neighborhoods, but they are similar. For example, the Upper West Side is broken up into several different TLC taxi zones, while the East Village is only one zone.
+
+The Metropolitan Transportation Authority (MTA, New York City's public transportation authority) released a complimentary dataset that lists the zones 
+
+# Central Claim
+
+
+
+# EDA
 
 ```{r}
 df_feb_25_green <- read_parquet("data/project/green_tripdata_2025-02.parquet")
@@ -55,10 +116,9 @@ df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_
 ```
 
 ## Plots
+
 ```{r}
 df_combined |>
-  ggplot(aes(x = year, y = congestion_surcharge)) +
+  ggplot(aes(x = lpep_pickup_datetime, y = cbd_congestion_fee)) +
   geom_point()
 ```
-
-
