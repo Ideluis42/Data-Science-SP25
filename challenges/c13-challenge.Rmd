@@ -12,13 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-if (!require(dplyr)) install.packages("arrow")
+if (!require(arrow)) install.packages("arrow")
 
 library(tidyverse)
 library(arrow)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(sf)
 
 ```
 
@@ -115,10 +116,144 @@ df_feb_24_yellow <-
 df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_feb_24_yellow)
 ```
 
+```{r}
+glimpse(df_combined)
+head(df_combined)
+```
+
+
 ## Plots
 
 ```{r}
-df_combined |>
-  ggplot(aes(x = lpep_pickup_datetime, y = cbd_congestion_fee)) +
-  geom_point()
+zone_lookup <- read_csv("data/project/taxi_zones.csv")
+zone_lookup <- zone_lookup |>
+  rename(LocationID = `Taxi Zone`)
+
+zones_sf <- zone_lookup |>     
+  st_as_sf(wkt = "Polygon", crs = 4326)        
+
+df_zone_by_year <- df_combined |>
+  group_by(year, DOLocationID) |>
+  summarise(n_rides = n(), .groups = "drop")
+
+df_zone_by_year <- df_zone_by_year |>
+  group_by(year) |>
+  mutate(
+    frac  = n_rides / sum(n_rides),       
+    pct   = frac * 100                    
+  ) %>%
+  ungroup()
+
+map_data <- zones_sf |>
+  left_join(df_zone_by_year,
+            by = c("LocationID" = "DOLocationID"))
+
+map_data |>
+  ggplot() +
+  geom_sf(aes(fill = pct), color = "grey70", size = 0.1) +
+  scale_fill_viridis_c(
+    option    = "magma",
+    trans     = "sqrt",
+    na.value  = "white"
+  ) +
+  facet_wrap(~ year) +
+  labs(
+    title    = "Feb Taxi Dropoffs in Manhattan by Zone",
+    subtitle = "2024 vs 2025",
+    fill     = "Number of Rides"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text    = element_blank(),
+    axis.ticks   = element_blank(),
+    panel.grid   = element_blank(),
+    strip.text   = element_text(face = "bold")
+  ) 
+
 ```
+
+```{r}
+# Mean Fare, Mean distance, mean tip percent per pickup zone
+df_zone_stats <- df_combined |>
+  filter(fare_amount > 0) |>
+  group_by(year, PULocationID)|>
+  summarise(
+    mean_fare    = mean(fare_amount,      na.rm = TRUE),
+    mean_tip_pct = mean(tip_amount/fare_amount*100, na.rm = TRUE),
+    mean_dist    = mean(trip_distance,    na.rm = TRUE),
+    .groups = "drop"
+  )
+
+zone_stats_sf <- zones_sf %>%
+  left_join(df_zone_stats, by = c("LocationID" = "PULocationID"))
+
+plot_map <- function(col, legend.title) {
+  zone_stats_sf |>
+  ggplot() +
+    geom_sf(aes_string(fill = col), color = "grey80", size = 0.1) +
+    facet_wrap(~year) +
+    scale_fill_viridis_c(
+      option   = "plasma",
+      trans    = "sqrt",
+      na.value = "white"
+    ) +
+    labs(fill   = legend.title,
+         title  = legend.title,
+         subtitle = "Feb 2024 vs Feb 2025") +
+    theme_minimal() +
+    theme(
+      axis.text  = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      strip.text = element_text(face = "bold")
+    )
+}
+
+plot_map("mean_fare",    "Mean Fare ($)")
+plot_map("mean_tip_pct", "Mean Tip (%)")
+plot_map("mean_dist",    "Mean Distance (mi)")
+```
+
+
+```{r}
+# Mean Fare, Mean distance, mean tip percent per dropoff zone
+df_zone_stats <- df_combined |>
+  filter(fare_amount > 0) |>
+  group_by(year, DOLocationID)|>
+  summarise(
+    mean_fare    = mean(fare_amount,      na.rm = TRUE),
+    mean_tip_pct = mean(tip_amount/fare_amount*100, na.rm = TRUE),
+    mean_dist    = mean(trip_distance,    na.rm = TRUE),
+    .groups = "drop"
+  )
+
+zone_stats_sf <- zones_sf %>%
+  left_join(df_zone_stats, by = c("LocationID" = "DOLocationID"))
+
+plot_map <- function(col, legend.title) {
+  zone_stats_sf |>
+  ggplot() +
+    geom_sf(aes_string(fill = col), color = "grey80", size = 0.1) +
+    facet_wrap(~year) +
+    scale_fill_viridis_c(
+      option   = "plasma",
+      trans    = "sqrt",
+      na.value = "white"
+    ) +
+    labs(fill   = legend.title,
+         title  = legend.title,
+         subtitle = "Feb 2024 vs Feb 2025") +
+    theme_minimal() +
+    theme(
+      axis.text  = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      strip.text = element_text(face = "bold")
+    )
+}
+
+plot_map("mean_fare",    "Mean Fare ($)")
+plot_map("mean_tip_pct", "Mean Tip (%)")
+plot_map("mean_dist",    "Mean Distance (mi)")
+```
+
