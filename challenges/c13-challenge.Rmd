@@ -11,12 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 if (!require(dplyr)) install.packages("arrow")
+if (!require(readr)) install.packages("readr")
 
 library(tidyverse)
 library(arrow)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(readr)
 
 ```
 
@@ -57,8 +59,21 @@ df_combined <- bind_rows(df_feb_25_green, df_feb_25_yellow, df_feb_24_green, df_
 ## Plots
 ```{r}
 df_combined |>
-  ggplot(aes(x = year, y = congestion_surcharge)) +
+  filter(payment_type < 3 & total_amount >= 0 & year == 2025) |>
+  ggplot(aes(x = color, y = cbd_congestion_fee)) +
   geom_point()
+```
+
+
+```{r}
+df_combined |>
+  filter(payment_type < 3 & total_amount >= 0) |>
+  ggplot(aes(x = color, y = total_amount)) +
+  geom_boxplot() +
+  facet_wrap("year")
+```
+```{r}
+
 ```
 
 
